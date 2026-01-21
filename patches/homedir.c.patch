@@ -1,8 +1,19 @@
 diff --git a/common/homedir.c b/common/homedir.c
-index d26ddd9..e28f5c9 100644
+index e1615e5..e0111f9 100644
 --- a/common/homedir.c
 +++ b/common/homedir.c
-@@ -135,6 +135,48 @@ static byte w32_bin_is_bin;
+@@ -35,7 +35,9 @@
+ #include <errno.h>
+ #include <fcntl.h>
+ #include <unistd.h>
+-
++#ifdef __MVS__
++#include <zos.h>
++#endif
+ #ifdef HAVE_W32_SYSTEM
+ #include <winsock2.h>   /* Due to the stupid mingw64 requirement to
+                            include this header before windows.h which
+@@ -135,6 +137,48 @@ static byte w32_bin_is_bin;
  static const char *w32_rootdir (void);
  #endif
  
@@ -51,7 +62,7 @@ index d26ddd9..e28f5c9 100644
  /* Return the name of the gnupg dir.  This is usually "gnupg".  */
  static const char *
  my_gnupg_dirname (void)
-@@ -843,6 +885,63 @@ w32_rootdir (void)
+@@ -843,6 +887,63 @@ w32_rootdir (void)
  
  
  #ifndef HAVE_W32_SYSTEM /* Unix */
@@ -115,7 +126,7 @@ index d26ddd9..e28f5c9 100644
  /* Determine the root directory of the gnupg installation on Unix.
   * The standard case is that this function returns NULL so that the
   * root directory as configured at build time is used.  However, it
-@@ -1465,6 +1564,7 @@ gnupg_socketdir (void)
+@@ -1489,6 +1590,7 @@ gnupg_socketdir (void)
  const char *
  gnupg_sysconfdir (void)
  {
@@ -123,7 +134,7 @@ index d26ddd9..e28f5c9 100644
  #ifdef HAVE_W32_SYSTEM
    static char *name;
  
-@@ -1476,9 +1576,20 @@ gnupg_sysconfdir (void)
+@@ -1500,9 +1602,20 @@ gnupg_sysconfdir (void)
      }
    return name;
  #else /*!HAVE_W32_SYSTEM*/
@@ -145,7 +156,7 @@ index d26ddd9..e28f5c9 100644
    else
      return GNUPG_SYSCONFDIR;
  #endif /*!HAVE_W32_SYSTEM*/
-@@ -1505,7 +1616,11 @@ gnupg_bindir (void)
+@@ -1529,7 +1642,11 @@ gnupg_bindir (void)
    else
      return rdir;
  #else /*!HAVE_W32_SYSTEM*/
@@ -158,7 +169,7 @@ index d26ddd9..e28f5c9 100644
    if (rdir)
      {
        if (!name)
-@@ -1532,7 +1647,11 @@ gnupg_libexecdir (void)
+@@ -1556,7 +1673,11 @@ gnupg_libexecdir (void)
    static char *name;
    const char *rdir;
  
@@ -171,7 +182,7 @@ index d26ddd9..e28f5c9 100644
    if (rdir)
      {
        if (!name)
-@@ -1562,7 +1681,11 @@ gnupg_libdir (void)
+@@ -1586,7 +1707,11 @@ gnupg_libdir (void)
  #else /*!HAVE_W32_SYSTEM*/
    const char *rdir;
  
@@ -184,7 +195,7 @@ index d26ddd9..e28f5c9 100644
    if (rdir)
      {
        if (!name)
-@@ -1593,7 +1716,11 @@ gnupg_datadir (void)
+@@ -1617,7 +1742,11 @@ gnupg_datadir (void)
  #else /*!HAVE_W32_SYSTEM*/
    const char *rdir;
  
@@ -197,7 +208,7 @@ index d26ddd9..e28f5c9 100644
    if (rdir)
      {
        if (!name)
-@@ -1625,7 +1752,11 @@ gnupg_localedir (void)
+@@ -1649,7 +1778,11 @@ gnupg_localedir (void)
  #else /*!HAVE_W32_SYSTEM*/
    const char *rdir;
  
@@ -210,7 +221,7 @@ index d26ddd9..e28f5c9 100644
    if (rdir)
      {
        if (!name)
-@@ -1782,6 +1913,9 @@ gnupg_set_builddir (const char *newdir)
+@@ -1806,6 +1939,9 @@ gnupg_set_builddir (const char *newdir)
  static void
  gnupg_set_builddir_from_env (void)
  {
@@ -220,7 +231,7 @@ index d26ddd9..e28f5c9 100644
  #if defined(IS_DEVELOPMENT_VERSION) || defined(ENABLE_GNUPG_BUILDDIR_ENVVAR)
    if (gnupg_build_directory)
      return;
-@@ -1798,7 +1932,9 @@ gnupg_module_name (int which)
+@@ -1822,7 +1958,9 @@ gnupg_module_name (int which)
  {
    gnupg_set_builddir_from_env ();
    gnupg_module_name_called = 1;
@@ -231,7 +242,7 @@ index d26ddd9..e28f5c9 100644
  #define X(a,b,c) do {                                                   \
      static char *name;                                                  \
      if (!name) {                                                        \
-@@ -1816,6 +1952,8 @@ gnupg_module_name (int which)
+@@ -1840,6 +1978,8 @@ gnupg_module_name (int which)
      case GNUPG_MODULE_NAME_AGENT:
  #ifdef GNUPG_DEFAULT_AGENT
        return GNUPG_DEFAULT_AGENT;
@@ -240,7 +251,7 @@ index d26ddd9..e28f5c9 100644
  #else
        X(bindir, "agent", "gpg-agent");
  #endif
-@@ -1823,6 +1961,15 @@ gnupg_module_name (int which)
+@@ -1847,6 +1987,15 @@ gnupg_module_name (int which)
      case GNUPG_MODULE_NAME_PINENTRY:
  #ifdef GNUPG_DEFAULT_PINENTRY
        return GNUPG_DEFAULT_PINENTRY;  /* (Set by a configure option) */
@@ -256,7 +267,7 @@ index d26ddd9..e28f5c9 100644
  #else
        return get_default_pinentry_name (0);
  #endif
-@@ -1844,6 +1991,8 @@ gnupg_module_name (int which)
+@@ -1868,6 +2017,8 @@ gnupg_module_name (int which)
      case GNUPG_MODULE_NAME_DIRMNGR:
  #ifdef GNUPG_DEFAULT_DIRMNGR
        return GNUPG_DEFAULT_DIRMNGR;
@@ -265,7 +276,7 @@ index d26ddd9..e28f5c9 100644
  #else
        X(bindir, "dirmngr", DIRMNGR_NAME);
  #endif
-@@ -1873,25 +2022,53 @@ gnupg_module_name (int which)
+@@ -1897,25 +2048,53 @@ gnupg_module_name (int which)
        X(libexecdir, "tools", "gpg-check-pattern");
  
      case GNUPG_MODULE_NAME_GPGSM:
