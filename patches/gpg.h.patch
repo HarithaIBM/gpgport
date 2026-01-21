@@ -1,0 +1,16 @@
+diff --git a/g10/gpg.h b/g10/gpg.h
+index 1172538..3caf5eb 100644
+--- a/g10/gpg.h
++++ b/g10/gpg.h
+@@ -36,8 +36,9 @@
+         map_assuan_err_with_source (GPG_ERR_SOURCE_DEFAULT, (a))
+ #include <gpg-error.h>
+ #include <gcrypt.h>
+-
+-
++#ifdef __MVS__
++#include <zos.h>
++#endif
+ /* Number of bits we accept when reading or writing MPIs. */
+ #define MAX_EXTERN_MPI_BITS 16384
+ 

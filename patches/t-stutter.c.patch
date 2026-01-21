@@ -1,0 +1,14 @@
+diff --git a/g10/t-stutter.c b/g10/t-stutter.c
+index 503a920..ee6d6a2 100644
+--- a/g10/t-stutter.c
++++ b/g10/t-stutter.c
+@@ -59,6 +59,9 @@
+ #include "../common/logging.h"
+ 
+ #include "test.c"
++#ifdef __MVS__
++#define sync sync_zos
++#endif
+ 
+ static void
+ log_hexdump (byte *buffer, int length)
